@@ -80,7 +80,6 @@ void setup() {
 
 char s2 = 'a';
 void loop() {
-  client.loop();
   rvelwrite = rvelint * rdir;
   lvelwrite = lvelint * ldir;
   digitalWrite(motorPinRightDir, rdirwrite);
@@ -92,17 +91,6 @@ void loop() {
      if (t % 10 == 0) {
       errorString = swSer.readStringUntil('\n');
       e = errorString.toInt();
-
-      if (e < -20) {
-        client.publish("g3.vibestol@gmail.com/followme", "turn;left");
-      } else if (e > 20) {
-        client.publish("g3.vibestol@gmail.com/followme", "turn;right");
-      } else if (e >= -20 && e <= 20 ){
-        client.publish("g3.vibestol@gmail.com/followme", "turn;straight");
-      } else {
-        client.publish("g3.vibestol@gmail.com/followme", "error;continue");
-      }
-    
 
       delta = kp*e;
       rvelint += delta;
