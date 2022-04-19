@@ -213,7 +213,7 @@ void loop()
       }
       else if (Mode == "Vaeg")
       {
-        regleraVaegVision(e);
+        regleraVaegVision();
         //Serial.println(rvelint);
       }
     }
@@ -299,9 +299,12 @@ void regleraIdSvaeng()
 
 
 
-void regleraVaegVision(int e)
+void regleraVaegVision()
 {
+  String vaegTyp = "S";
   float s_y = 0.0;
+  sL = 0;
+  sR = 0;
   ldir = 1;
   rdir = 1;
   lvelint = 800;
@@ -339,7 +342,12 @@ void regleraVaegVision(int e)
 
 
     errorString = swSer.readStringUntil('\n');
-    e = errorString.toInt();
+    String type = errorString.substring(0,1);
+    e = errorString.substring(1).toInt();
+    if (type == "L" || type == "R")
+    {
+      vaegTyp = type;
+    }
     if (e == 727)
     {
       lvelint = rvelint - leftOffset;
@@ -353,7 +361,10 @@ void regleraVaegVision(int e)
     Serial.print(sR);
     Serial.print(",");
     Serial.print("sL: ");
-    Serial.println(sL);
+    Serial.print(sL);
+    Serial.print("s_y: ");
+    Serial.println(s_y);
+    Serial.println(vaegTyp);
     yield();
   }
   Serial.println("Stopping!!!!!");
@@ -361,7 +372,7 @@ void regleraVaegVision(int e)
   analogWrite(motorPinRightSpeed, 0);
   digitalWrite(motorPinLeftDir, 1);
   analogWrite(motorPinLeftSpeed, 0);
-  
+  delay(5000);
 }
 
 
