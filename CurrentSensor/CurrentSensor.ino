@@ -195,11 +195,13 @@ void loop()
   pinMode(leftSensor, INPUT_PULLUP);
   pinMode(rightSensor, INPUT_PULLUP);
   t += 1;
-  if (swSer.available())
-  {
+  
+  //if (swSer.available())
+  //{
     //Serial.println("Coggers, Coggers!");
     if (t % 4 == 0)
     {
+      t = 0;
       swSer.println(Mode);
       //Serial.println(Mode);
       if (Mode == "Hinder")
@@ -217,7 +219,7 @@ void loop()
         //Serial.println(rvelint);
       }
     }
-  }
+  //}
 }
 
 void regleraMotor(float bor, int dir, bool left)
@@ -259,19 +261,22 @@ void regleraMotor(float bor, int dir, bool left)
 
 void regleraIdSvaeng()
 {
-  borL = 3.0;
-  borR = 3.0;
-  sL = 0.0;
-  sR = 0.0;
+  Serial.println("regleraIdSvaeng()");
+  borL = 2.4;
+  borR = 2.7;
   lvelint = 600;
   ldir = 0;
   rdir = 1;
   rvelint = 600;
-  
+  Mode = "Typ";  
   // Turn left 90 degrees, by turning right motor backwards, and left motor forwards at same speed. 
 
-  for (int r; r < 4; r++)
+  for (int r = 0; r < 4; r++)
   {
+    sL = 0.0;
+    sR = 0.0;
+    Serial.print(r);
+    Serial.println(": In loop of svaeng!");
     while ((sL + sR)/2 <= 3.1 * 3.14159)
     {
       millis_check(last_time);
@@ -280,6 +285,7 @@ void regleraIdSvaeng()
         regleraMotor(borL, ldir, true);
         regleraMotor(borR, rdir, false);
       }
+      yield();
     }
 
     digitalWrite(motorPinRightDir, 1);
@@ -287,13 +293,19 @@ void regleraIdSvaeng()
     digitalWrite(motorPinLeftDir, 1);
     analogWrite(motorPinLeftSpeed, 0);
 
-    swSer.println("Typ");
+    for (int n = 0; n < 50; n++)
+    {
+      swSer.println("Typ");
+      delay(100);
+    }
+    
     turnString = swSer.readStringUntil('\n');
     vaegTurns[r] = turnString.charAt(0);
 
     // Here will komma lite kode om the riktning of the aztekare...
     // And here wi will send lite information to the eldbase...
   }
+  Serial.print("Identification Complete! Result: ");
   Serial.println(vaegTurns);
 }
 
@@ -303,12 +315,20 @@ void regleraVaegVision()
 {
   String vaegTyp = "S";
   float s_y = 0.0;
+  Mode = "Vaeg";
   sL = 0;
   sR = 0;
   ldir = 1;
   rdir = 1;
   lvelint = 800;
   rvelint = 800;
+
+  for (int i=0; i < 50; i++)
+  {
+    swSer.println(Mode);
+    delay(100);
+  }
+  
 
   while (s_y < 25.4) {
     digitalWrite(motorPinRightDir, rdir);
@@ -373,6 +393,7 @@ void regleraVaegVision()
   digitalWrite(motorPinLeftDir, 1);
   analogWrite(motorPinLeftSpeed, 0);
   delay(5000);
+  regleraIdSvaeng();
 }
 
 
